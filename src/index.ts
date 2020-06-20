@@ -112,5 +112,6 @@ export { default as useMeasure } from './useMeasure';
 export { useRendersCount } from './useRendersCount';
 export { useFirstMountState } from './useFirstMountState';
 export { default as useSet } from './useSet';
+export { default as useNativeSet } from './useNativeSet';
 export { createGlobalState } from './createGlobalState';
 export { useHash } from './useHash';
