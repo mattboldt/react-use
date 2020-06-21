@@ -1,6 +1,6 @@
 /* eslint-disable */
-import { useRef, useReducer, useMemo } from 'react';
-// import useUpdate from './useUpdate';
+import { useRef, useMemo } from 'react';
+import useUpdate from './useUpdate';
 
 export interface StableActions<K> {
   clear: () => void;
@@ -9,7 +9,7 @@ export interface StableActions<K> {
   reset: () => void;
 }
 
-export interface Actions<K> extends StableActions<K> {
+export interface SetProxy<K> extends StableActions<K> {
   add: (key: K) => void;
   entries: () => Iterator<any, any, undefined>;
   values: () => Iterator<any, any, undefined>;
@@ -18,11 +18,9 @@ export interface Actions<K> extends StableActions<K> {
   size: Number;
 }
 
-const updateReducer = (num: number): number => (num + 1) % 1_000_000;
-
-const useNativeSet = <K>(initialSet = new Set<K>()): [Set<K>, Actions<K>] => {
-  const set = useRef(initialSet);
-  const [, update] = useReducer(updateReducer, 0);
+const useNativeSet = <K>(initialSet = new Set<K>()): [Set<K>, SetProxy<K>] => {
+  const set = useRef(new Set(Array.from(initialSet)));
+  const update = useUpdate();
 
   // const stableActions = useMemo<StableActions<K>>(() => {
   //   // const add = (item: K) => setSet((prevSet) => new Set([...Array.from(prevSet), item]));
@@ -53,24 +51,22 @@ const useNativeSet = <K>(initialSet = new Set<K>()): [Set<K>, Actions<K>] => {
         } else {
           set.current.add(item);
         }
-        update(1);
+        // update();
       },
       reset: () => {
-        // set.current.clear();
-        console.log(initialSet);
         set.current = initialSet;
-        // update(1);
+        update();
       },
       size: set.current.size,
       add: (item) => {
         set.current.add(item);
-        update(1);
+        // update();
       },
       entries: () => set.current.entries(),
       forEach: (fn = null) => set.current.forEach(fn),
       has: (item) => set.current.has(item),
       values: () => set.current.values(),
-    } as Actions<K>;
+    } as SetProxy<K>;
   }, [set.current]);
 
   return [set.current, proxy];
